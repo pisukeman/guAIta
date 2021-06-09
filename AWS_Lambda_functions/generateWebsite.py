@@ -65,11 +65,11 @@ def lambda_handler(event, context):
     times = []
     if Pujalt_iss:
         code = code + "<div class='alert alert-info role='alert'> ISS Transits for Obs: Pujalt</br>"
-        for iss in Pujalt_iss['passes']:
-            times.append([datetime.fromtimestamp(iss['startUTC']).strftime("%b %d %Y %H:%M:%S"),datetime.fromtimestamp(iss['endUTC']).strftime("%b %d %Y %H:%M:%S")])
-            code = code + "("+datetime.fromtimestamp(iss['startUTC']).strftime("%b %d %Y %H:%M:%S")+"-"+datetime.fromtimestamp(iss['endUTC']).strftime("%b %d %Y %H:%M:%S")+") "
-        code = code + "</div>"
-
+        if "passes" in Pujalt_iss:
+            for iss in Pujalt_iss['passes']:
+                times.append([datetime.fromtimestamp(iss['startUTC']).strftime("%b %d %Y %H:%M:%S"),datetime.fromtimestamp(iss['endUTC']).strftime("%b %d %Y %H:%M:%S")])
+                code = code + "("+datetime.fromtimestamp(iss['startUTC']).strftime("%b %d %Y %H:%M:%S")+"-"+datetime.fromtimestamp(iss['endUTC']).strftime("%b %d %Y %H:%M:%S")+") "
+            code = code + "</div>"
     code = code + "</body></html>"
     
     file_name = "index.html"
