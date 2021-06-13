@@ -1,3 +1,5 @@
+![guAIta](https://guaita.s3-eu-west-1.amazonaws.com/logo_small.jpg)
+
 # guAIta
 guAIta is an opensource project to detect meteors using deep learning models
 
