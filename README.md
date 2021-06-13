@@ -11,7 +11,7 @@ Project structure:
 - Models:
   -  pkl file with the latest version of the model
 -  AWS_Lambda_functions
-  - Lambda functions to genereate a backend to notify the meteors detected  
-
+  -  Lambda functions to genereate a backend to notify the meteors detected  
+  
 If you need more information about the project contact me at davidregordosa@gmail.com or @pisukeman on twitter.
 
