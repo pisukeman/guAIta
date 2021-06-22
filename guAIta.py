@@ -10,19 +10,6 @@ from guAItaConfig import *
 import PySimpleGUI as sg
 import time
 
-class Hook():
-    def __init__(self, m):
-        self.hook = m.register_forward_hook(self.hook_func)   
-    def hook_func(self, m, i, o): self.stored = o.detach().clone()
-    def __enter__(self, *args): return self
-    def __exit__(self, *args): self.hook.remove()
-
-class HookBwd():
-    def __init__(self, m):
-        self.hook = m.register_backward_hook(self.hook_func)   
-    def hook_func(self, m, gi, go): self.stored = go[0].detach().clone()
-    def __enter__(self, *args): return self
-    def __exit__(self, *args): self.hook.remove()
 
 def printHeader():
     print("")
@@ -37,7 +24,7 @@ def printHeader():
     now = datetime.now() 
     print("Starting guAIta at:"+now.strftime("%d/%m/%Y %H:%M:%S"))
 
-
+#Function to get the last subfolder in a main folder
 def getLastFolder(folder=guAIta_main_folder):
     subfolders = sorted([ f.path for f in os.scandir(folder) if f.is_dir() ])
     if (len(subfolders)>0):
@@ -45,6 +32,8 @@ def getLastFolder(folder=guAIta_main_folder):
     else:
         return ""
 
+#Function to analyze an entire folder of images genereated
+#This function is prepared to work as batch scheduled process
 def guAItaDayAnalisis():
     printHeader()
     
@@ -93,6 +82,7 @@ def guAItaDayAnalisis():
         (thresh, img_subs) = cv.threshold(img_subs, 3.5, 255, cv.THRESH_BINARY)
         img_subs = cv.resize(img_subs,(224,224),interpolation=cv.INTER_AREA)
 
+        #Inference is done here
         img = PILImage.create(img_subs)
         predict = learn.predict(img)
 
@@ -123,7 +113,8 @@ def guAItaDayAnalisis():
         requests.post(guAIta_URL, json_log)
     return True    
 
-
+#Function to scan a folder, detect when new images are generated and infer
+#This function is prepared to work as real-time process
 def guAItaRunner():
     printHeader()
     
@@ -160,6 +151,7 @@ def guAItaRunner():
 
         now = datetime.now() 
 
+        #Let's check if the process should run now
         scan = False
         if (int(now.strftime("%H%M"))>=int(guAIta_start_time)):
             scan=True
@@ -188,6 +180,7 @@ def guAItaRunner():
                     (thresh, img_subs) = cv.threshold(img_subs, 3.5, 255, cv.THRESH_BINARY)
                     img_subs = cv.resize(img_subs,(224,224),interpolation=cv.INTER_AREA)
 
+                    #Inference
                     img = PILImage.create(img_subs)
                     print("Image Inference")
                     predict = learn.predict(img)
@@ -207,7 +200,7 @@ def guAItaRunner():
                         retval, buffer = cv.imencode('.jpg',numpy_horizontal)
                         imgb64_string = base64.b64encode(buffer).decode('utf-8')
                       
-                        
+                        #Do the API call to notify detection
                         json_meteor = json.dumps({'id': id,'date': id[6:8]+"/"+id[4:6]+"/"+id[0:4],
                             'time': id[8:10]+":"+id[10:12]+":"+id[12:14],'score':f"{predict[2][0]}",'obs_id':guAIta_obs_id,
                             'processed':now.strftime("%d/%m/%Y %H:%M"),
@@ -223,6 +216,7 @@ def guAItaRunner():
     print("guAIta finished at: "+now.strftime("%d/%m/%Y %H:%M:%S")+"\n")
     return True
 
+#Choose the mode you want to execute (real-time or batch process)
 #guAItaRunner()
-guAItaDayAnalisis()
+#guAItaDayAnalisis()
 
